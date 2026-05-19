@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>safeEnv Technical Manual & Reference Guide</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-accent: #21262d;
+            --text-primary: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-color: #58a6ff;
+            --success-color: #2ea44f;
+            --border-color: #30363d;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+        }
+
+        aside h1 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        aside ul {
+            list-style: none;
+        }
+
+        aside li {
+            margin-bottom: 0.75rem;
+        }
+
+        aside a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        aside a:hover {
+            color: var(--accent-color);
+        }
+
+        aside .nav-sub {
+            padding-left: 1rem;
+            margin-top: 0.5rem;
+            border-left: 1px solid var(--border-color);
+        }
+
+        /* Main Content Container */
+        main {
+            margin-left: var(--sidebar-width);
+            padding: 3rem 4rem;
+            max-width: 1000px;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 3rem;
+        }
+
+        h1, h2, h3, h4 {
+            color: #fff;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        h1 { font-size: 2.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h2 { font-size: 1.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; }
+        h3 { font-size: 1.35rem; }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border-color);
+            margin: 3rem 0;
+        }
+
+        /* Code Blocks styling */
+        pre {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+            font-size: 0.9rem;
+        }
+
+        code {
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+            background-color: rgba(110, 118, 129, 0.4);
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Callout blocks */
+        .blockquote {
+            background-color: rgba(56, 139, 253, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .blockquote p {
+            margin-bottom: 0;
+        }
+
+        /* Unordered lists */
+        ul.desc-list {
+            list-style-type: none;
+            margin-bottom: 1.5rem;
+        }
+
+        ul.desc-list li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        ul.desc-list li::before {
+            content: "•";
+            color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            aside {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            main {
+                margin-left: 0;
+                width: 100%;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <h1>🔒 SafeEnv CLI</h1>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#architecture">Technical Architecture</a></li>
+            <li>
+                <a href="#commands">Command Reference</a>
+                <ul class="nav-sub">
+                    <li><a href="#cmd-init">safeenv init</a></li>
+                    <li><a href="#cmd-register">register</a></li>
+                    <li><a href="#cmd-create">team create</a></li>
+                    <li><a href="#cmd-join">team join</a></li>
+                    <li><a href="#cmd-invite">team invite</a></li>
+                    <li><a href="#cmd-push">safe push</a></li>
+                    <li><a href="#cmd-pull">safe pull</a></li>
+                </ul>
+            </li>
+        </ul>
+    </aside>
+
+    <main>
+        <section id="overview">
+            <h1>SafeEnv: Terminal-Based Cryptographic Environment Manager</h1>
+            <p><code>safeEnv</code> is a professional, zero-trust CLI tool designed to protect, manage, and securely distribute sensitive configuration environment files across development teams. By combining hardened local key derivation with modern Curve25519 asymmetric envelope encapsulation, <code>safeEnv</code> ensures secrets remain completely encrypted at rest on central remote servers while allowing instant local decryption and provisioning directly via the terminal.</p>
+        </section>
+
+        <hr>
+
+        <section id="installation">
+            <h2>Installation & Setup</h2>
+            <p>Follow the steps below to set up Go and compile the latest binary snapshot tracking target tool directly into your system cluster profile runtime architecture.</p>
+            
+            <h3>1. Install Go (Golang)</h3>
+            <p>Ensure Go version 1.21 or higher is deployed globally on your machine workspace environment framework:</p>
+            
+            <p><strong>macOS (Homebrew)</strong></p>
+            <pre><code>brew install go</code></pre>
+
+            <p><strong>Ubuntu/Linux (apt)</strong></p>
+            <pre><code>sudo apt update&#x000A;sudo apt install golang-go</code></pre>
+
+            <div class="blockquote">
+                <p>⚠️ <strong>Important Step:</strong> Ensure your Go binary path (<code>$GOPATH/bin</code> or <code>$HOME/go/bin</code>) is added to your system's <code>PATH</code> environment variable so your shell can discover compiled global packages cleanly.</p>
+            </div>
+
+            <h3>2. Fetch and Build safeEnv</h3>
+            <p>Compile and lock the isolated binary bundle parameters directly down from the repository distribution server:</p>
+            <pre><code>go install github.com/Oladev-01/safeenv/cmd/safeenv@v0.1.8</code></pre>
+        </section>
+
+        <hr>
+
+        <section id="architecture">
+            <h2>Technical Architecture Overview</h2>
+            <p><code>safeEnv</code> completely decouples application security contexts from backend structures using a zero-trust design:</p>
+            <ul class="desc-list">
+                <li><strong>Master Key Derivation (Argon2id):</strong> When managing internal asymmetric private keys locally, a master passphrase is encrypted and verified using a highly robust Argon2id configuration algorithm. This implementation prevents offline high-performance GPU array brute-force optimizations.</li>
+                <li><strong>Asymmetric Envelope Encryption (X25519 / Curve25519):</strong> Rather than re-encrypting massive configuration payloads independently for each developer, <code>safeEnv</code> abstracts access control. The file payload is securely wrapped exactly once using a highly volatile random symmetric team key. This unique access key is then packed inside separate authenticated cryptographic distribution envelopes (<code>box.SealAnonymous</code>) customized directly for each explicit user's public identity.</li>
+                <li><strong>Authenticated Symmetric Storage (AES-256-GCM):</strong> The binary payload representing the configuration safe is locked via a high-performance, hardware-accelerated block cipher mode. Integrated validation tags guarantee instantaneous detection of data tampering, preventing invalid payload delivery pipelines.</li>
+            </ul>
+        </section>
+
+        <hr>
+
+        <section id="commands">
+            <h2>Command Reference</h2>
+            <p>The system organizes functional context logic loops under explicit execution namespaces:</p>
+
+            <div id="cmd-init">
+                <h3><code>safeenv init</code></h3>
+                <p>Configures connection parameters linking the terminal instance with your underlying Supabase persistence layer.</p>
+                <pre><code>safeenv init</code></pre>
+                <p><strong>Interactive Inputs Required:</strong></p>
+                <ul class="desc-list">
+                    <li><em>Supabase Project URL</em> (e.g., <code>https://xyz.supabase.co</code>)</li>
+                    <li><em>Supabase Service Role Key</em> (Administrative credentials)</li>
+                </ul>
+            </div>
+
+            <div id="cmd-register" style="margin-top: 2rem;">
+                <h3><code>safeenv register</code></h3>
+                <p>Provisions an isolated cryptographic user identity onto the local hardware cluster and syncs public metadata profiles to the network.</p>
+                <pre><code>safeenv register</code></pre>
+                <div class="blockquote">
+                    <p><strong>Security Context:</strong> If an active terminal signature token is currently registered on the host environment, the runtime stops processing immediately and guides the engineer toward running <code>safeenv reset</code> to prevent identity corruption.</p>
+                </div>
+            </div>
+
+            <div id="cmd-create" style="margin-top: 2rem;">
+                <h3><code>safeenv team create</code></h3>
+                <p>Establishes a new secure corporate or engineering department workspace environment, automatically designating the calling user as the infrastructure Admin.</p>
+                <pre><code>safeenv team create --team &lt;team_name&gt; --user &lt;your_username&gt;</code></pre>
+                <p><strong>Required Flags:</strong></p>
+                <ul class="desc-list">
+                    <li><code>-t, --team</code> : A completely unique target tracking name for your team structure namespace.</li>
+                    <li><code>-u, --user</code> : Your explicit, distinct profile identifier string inside this specific team pool.</li>
+                </ul>
+            </div>
+
+            <div id="cmd-join" style="margin-top: 2rem;">
+                <h3><code>safeenv team join</code></h3>
+                <p>Accepts a verified invitation ticket block to enroll your active cryptographic public key credentials inside a collaborative team pool.</p>
+                <pre><code>safeenv team join --team &lt;team_name&gt; --user &lt;your_username&gt; --code &lt;6_digit_code&gt;</code></pre>
+            </div>
+
+            <div id="cmd-invite" style="margin-top: 2rem;">
+                <h3><code>safeenv team invite</code></h3>
+                <p>Generates an ephemeral, secure transactional access token allowing external engineers to attach their accounts to a team signature map.</p>
+                <pre><code>safeenv team invite --team &lt;team_name&gt;</code></pre>
+                <p><strong>Output Constraints:</strong> Outputs a copy-pasteable 6-digit verification code with an absolute chronological expiration hard-limit set to exactly <strong>1 hour</strong> from creation.</p>
+            </div>
+
+            <div id="cmd-push" style="margin-top: 2rem;">
+                <h3><code>safeenv safe push</code></h3>
+                <p>Encrypts, isolates, and builds distribution vaults for a cleartext environment configuration file, synchronizing storage components immediately to the persistence database.</p>
+                <pre><code># Distribute to everyone within the team workspace context&#x000A;safeenv safe push .env --team your-team --all&#x000A;&#x000A;# Target specific tracking identities with custom signature filenames&#x000A;safeenv safe push production.json -t your-team -u user1 -u user2 -n custom-filename</code></pre>
+            </div>
+
+            <div id="cmd-pull" style="margin-top: 2rem;">
+                <h3><code>safeenv safe pull</code></h3>
+                <p>Retrieves, verifies, and extracts an encrypted distribution safe vault down to your active physical terminal storage path.</p>
+                <pre><code># Pull down latest data values dynamically&#x000A;safeenv safe pull production.env --team your-team --output .env&#x000A;&#x000A;# Pull down historical version configuration target matrix nodes&#x000A;safeenv safe pull production.env -t your-team --version 3 -o decrypted.json</code></pre>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
